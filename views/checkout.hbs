@@ -1,0 +1,137 @@
+<div class="container mt-5 mt-md-0">
+    <div class="row mt-4">
+        <div class="col-sm-12 col-md-12 col-lg-6 px-0">
+            <div class="container-fluid" id="ordercont">
+                <h2>Order Summary</h2>
+                <div class="jumbotron bg-grey" id="orderbox">
+
+                    {{#each order}}
+                    <div class='row my-4'>
+                        <div class='media border container rounded'>
+                            <img class="d-flex mr-3 itemPictureCheckout" src="itempictures/{{itemImg}}" alt="Generic placeholder image">
+                            <div class="media-body my-auto d-flex">
+                                <div class='col-7 text-left'>
+                                    <div class='row'>
+                                        {{name}}
+                                    </div>
+                                    <div class='row itemPrice'>
+                                        {{price}} X {{quantity}}
+                                    </div>
+                                </div>
+                                <div class='col-5 float-right text-right decimal'>{{itemPrice}}</div>
+                            </div>
+                        </div>
+                    </div>
+                    {{/each}}
+                    <div class="container-fluid">
+                        <div id="totalcost">
+                            <div id="totalp">
+                                <h5>Tax Charge</h5>
+                            </div>
+                            <h6 class="text-right">RM</h6>
+                            <h6 class="text-right">0.60</h6>
+                        </div>
+                        <div id="totalcost">
+                            <div id="totalp">
+                                <h5>TOTAL</h5>
+                            </div>
+                            <h6 class="text-right">RM</h6>
+                            <h6 class="decimal text-right">{{totalPrice}}</h6>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class='row jumbotron mx-1 d-block py-5'>
+        <button class='btn btn-success border-0' id='confirmDelivery'>Pay at Counter</button>
+    </div>
+</div>
+
+
+<script>
+$(document).ready(function(){
+
+    // commas
+        
+        function numberWithCommas(x) {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }   
+
+        // add prices past orders
+        decimal = $(".decimal")
+
+        for(i=0; i<decimal.length; i++)
+        {
+            newValue = $(decimal[i]).text();
+            newValue = parseFloat(newValue);
+            newValue = newValue.toFixed(2);
+            newValue = numberWithCommas(newValue);
+            $(decimal[i]).text(newValue);
+        }
+
+    // Buttons
+    var num;
+    var add1;
+    var add2;
+
+    $("#btnEdit").click(function(){
+        num = $("#number").val();
+        add1 = $("#add1").val();
+        add2 = $("#add2").val();
+        $(this).hide();
+        $("#number").prop("readonly", false);
+        $("#add1").prop("readonly", false);
+        $("#add2").prop("readonly", false);
+        $("#btnCancel").css("display","block");
+        $("#btnConfirm").css("display","block");
+    });
+
+    $("#btnCancel").click(function(){
+        $("#btnCancel").css("display","none");
+        $("#btnConfirm").css("display","none");
+        $("#btnEdit").show();
+        $("#number").val(num);
+        $("#add1").val(add1);
+        $("#add2").val(add2);
+        $("#error").text("");
+    });
+
+    $("#btnConfirm").click(function(){
+
+        var num = $("#number").val();
+        console.log(num);
+        var regex = /^(01)\d{8}$/;
+        if( regex.test(num) == false )
+        {
+            $("#error").text("Must be in 10-digit form: 01XXXXXXXX");
+        }
+        else
+        {
+            $("#error").text("");
+            $("#btnCancel").css("display","none");
+            $("#btnConfirm").css("display","none");
+            $("#btnEdit").show();
+            $("#number").prop("readonly", true);
+            $("#add1").prop("readonly", true);
+            $("#add2").prop("readonly", true);
+        }
+        
+    });
+
+    $("#confirmDelivery").click(function () {
+        $.ajax({
+            url: "/homecheckout",
+            type: 'POST',
+            contentType: 'application/json',
+            success: function (data) 
+            { 
+                console.log('POST success!'); 
+                window.location.href = "/homecatalogue"; 
+            },
+        });
+    })
+});
+</script>
+
